@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "sqlalcehmy-pg-fts"
+version = "0.1.0"
+description = "SqlAlchemy Postgres tsquery functionality"
+authors = ["Joel Johnson <johnson.joel.b@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.6.15"
+sqlalchemy = "^1.3"
+
+[tool.poetry.dev-dependencies]
+black = "^22.3.0"
+ipython = "^7.12.0"
+ptpython = "^3.0.20"
+psycopg2 = "^2.9"
+pytest = "^5.2"
+pytest-sqlalchemy = "^0.2"
+
+[tool.black]
+target-version = ['py36']
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
