@@ -1,6 +1,6 @@
 import pytest
 
-from sqlalcehmy_pg_fts.tsquery import _filter, websearch
+from sqlalcehmy_pg_fts.websearch import _filter, websearch_to_tsquery
 
 
 @pytest.mark.parametrize(
@@ -37,5 +37,5 @@ def test_filter(query, filtered):
         ('dino* "long ago"', "dino:* & ( long <-> ago )"),
     ],
 )
-def test_websearch(query, tsquery):
-    assert websearch(query) == tsquery
+def test_websearch_to_tsquery(query, tsquery):
+    assert websearch_to_tsquery(query) == tsquery
