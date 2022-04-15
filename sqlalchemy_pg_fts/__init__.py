@@ -1,6 +1,6 @@
 __version__ = "0.1.0"
 
-from sqlalcehmy_pg_fts.websearch import websearch, websearch_to_tsquery
+from sqlalchemy_pg_fts.websearch import websearch, websearch_to_tsquery
 
 
 __all__ = [

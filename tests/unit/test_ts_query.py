@@ -1,6 +1,6 @@
 import pytest
 
-from sqlalcehmy_pg_fts.websearch import _filter, websearch_to_tsquery
+from sqlalchemy_pg_fts.websearch import _filter, websearch_to_tsquery
 
 
 @pytest.mark.parametrize(

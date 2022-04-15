@@ -23,7 +23,6 @@ def compile_websearch_postgres(element, compiler, **kw):
     return "'%s'" % websearch_to_tsquery(websearch_query)
 
 
-
 OPS_FILTER = re.compile(r"[|&!:()]")
 PHRASE_CLEANUP = re.compile(r'"\s*(\w*)\s*"')
 AND_OP = "&"
@@ -112,4 +111,3 @@ def _tokenize(query: str) -> Iterator[str]:
         part = part.strip()
         if part != "":
             yield (part)
-

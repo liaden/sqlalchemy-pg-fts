@@ -3,7 +3,7 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import Query
-from sqlalcehmy_pg_fts import websearch, websearch_to_tsquery
+from sqlalchemy_pg_fts import websearch, websearch_to_tsquery
 from tests.integration.conftest import connection, session
 from tests.integration.model import Item
 

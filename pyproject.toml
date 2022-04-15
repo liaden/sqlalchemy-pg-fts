@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "sqlalcehmy-pg-fts"
+name = "sqlalchemy-pg-fts"
 version = "0.1.0"
 description = "SqlAlchemy Postgres tsquery functionality"
 authors = ["Joel Johnson <johnson.joel.b@gmail.com>"]
