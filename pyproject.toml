@@ -3,6 +3,11 @@ name = "sqlalchemy-pg-fts"
 version = "0.1.0"
 description = "SqlAlchemy Postgres tsquery functionality"
 authors = ["Joel Johnson <johnson.joel.b@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/liaden/sqlalchemy-pg-fts"
+repository = "https://github.com/liaden/sqlalchemy-pg-fts"
+keywords = ["postgres", "tsquery", "sqlalchemy", "full text search"]
 
 [tool.poetry.dependencies]
 python = "^3.6.15"
