@@ -7,10 +7,13 @@ from sqlalchemy.sql.expression import FunctionElement
 
 class websearch(FunctionElement):
     """
-    Compiles websearch query to tsquery text.
+     Compiles websearch query to tsquery text.
 
-    Usage:
-        `filter(SomeModel.column.matches(websearch("some words -filtered")))`
+     Usage:
+         `filter(SomeModel.column.matches(websearch("some words -filtered")))`
+
+    Note: The above example does not cause the column to be converted to a tsvector
+    which does matter for query performance.
     """
 
     name = "websearch"
@@ -18,7 +21,6 @@ class websearch(FunctionElement):
 
 @compiles(websearch, "postgresql")
 def compile_websearch_postgres(element, compiler, **kw):
-    kw["literal_binds"] = True
     websearch_query = list(element.clauses)[0].value
     return "'%s'" % websearch_to_tsquery(websearch_query)
 
@@ -29,6 +31,14 @@ AND_OP = "&"
 FOL_OP = "<->"
 NOT_OP = "!"
 OR_OP = "|"
+
+
+class Websearch:
+    def __init__(self, query_text):
+        self.query_text = query_text
+
+    def to_tsquery_text(self) -> str:
+        return websearch_to_tsquery(self.query_text)
 
 
 def websearch_to_tsquery(query: str) -> str:
