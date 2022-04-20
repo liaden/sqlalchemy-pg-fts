@@ -52,6 +52,8 @@ coverage.xml
 .pytest_cache/
 cover/
 
+# poetry-tox isolated builds
+.requirements.txt
 
 # Sphinx documentation
 docs/_build/
@@ -86,7 +88,7 @@ dmypy.json
 .pyre/
 
 
-# pytype static type analyzer
+ pytype static type analyzer
 .pytype/
 
 # Cython debug symbols
