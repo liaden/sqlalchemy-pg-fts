@@ -10,20 +10,16 @@ from sqlalchemy import select
 def test_english_to_tsquery():
     query = select([to_tsquery("english", "dinosaur & stomp")])
 
-    assert to_sql(query) == (
-        "SELECT to_tsquery('english', 'dinosaur & stomp') AS to_tsquery_1"
-    )
+    assert to_sql(query).startswith("SELECT to_tsquery('english', 'dinosaur & stomp')")
 
 
 def test_nolang_to_tsquery():
     query = select([to_tsquery("dinosaur & stomp")])
 
-    assert to_sql(query) == "SELECT to_tsquery('dinosaur & stomp') AS to_tsquery_1"
+    assert to_sql(query).startswith("SELECT to_tsquery('dinosaur & stomp')")
 
 
 def test_websearch_to_tsquery():
     query = select([to_tsquery("english", websearch("dinosaur stomp"))])
 
-    assert to_sql(query) == (
-        "SELECT to_tsquery('english', 'dinosaur & stomp') AS to_tsquery_1"
-    )
+    assert to_sql(query).startswith("SELECT to_tsquery('english', 'dinosaur & stomp')")

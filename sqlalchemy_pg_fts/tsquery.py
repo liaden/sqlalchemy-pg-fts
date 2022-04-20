@@ -1,9 +1,9 @@
 from typing import Optional, Union
 
 from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.sql.expression import FunctionElement
-from sqlalchemy.types import UserDefinedType
-from sqlalchemy import func, null
+from sqlalchemy.sql.expression import bindparam, FunctionElement
+from sqlalchemy.types import String, UserDefinedType
+from sqlalchemy import func, null, type_coerce
 
 from sqlalchemy_pg_fts.websearch import Websearch
 
@@ -32,9 +32,6 @@ class TSQuery(UserDefinedType):
 
         def coerce_compared_value(self, op, value):
             return self
-
-        def __getattr__(self, key):
-            return None
 
     def coerce_compared_value(self, op, value):
         return self
