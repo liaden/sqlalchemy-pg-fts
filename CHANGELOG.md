@@ -9,6 +9,11 @@ API and may have breaking changes during a teeny version change.
 
 ## [Unreleased]
 
+## 0.1.1
+
+- Cleanup
+- Fix `websearch` tokenization on Python 3.6
+
 ## 0.1.0
 
 - Add `TSVector` as a column type.
