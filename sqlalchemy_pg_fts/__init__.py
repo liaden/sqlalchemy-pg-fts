@@ -1,4 +1,4 @@
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 from sqlalchemy_pg_fts.websearch import websearch, websearch_to_tsquery
 from sqlalchemy_pg_fts.tsquery import to_tsquery, TSQuery

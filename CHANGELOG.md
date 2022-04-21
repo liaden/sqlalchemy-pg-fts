@@ -9,6 +9,10 @@ API and may have breaking changes during a teeny version change.
 
 ## [Unreleased]
 
+## 0.1.3
+
+- Filter additional punctuation related characters from websearch queries.
+
 ## 0.1.2
 
 - Relax python version constraint for 3.6.
