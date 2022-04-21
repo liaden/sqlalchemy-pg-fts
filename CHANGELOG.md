@@ -9,6 +9,10 @@ API and may have breaking changes during a teeny version change.
 
 ## [Unreleased]
 
+## 0.1.2
+
+- Relax python version constraint for 3.6.
+
 ## 0.1.1
 
 - Cleanup
