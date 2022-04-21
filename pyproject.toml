@@ -10,7 +10,7 @@ repository = "https://github.com/liaden/sqlalchemy-pg-fts"
 keywords = ["postgres", "tsquery", "sqlalchemy", "full text search"]
 
 [tool.poetry.dependencies]
-python = "^3.6.15"
+python = "^3.6.13"
 sqlalchemy = "^1.3.24"
 
 [tool.poetry.dev-dependencies]
