@@ -26,7 +26,7 @@ def compile_websearch_postgres(element, compiler, **kw):
     return "'%s'" % websearch_to_tsquery(websearch_query)
 
 
-OPS_FILTER = re.compile(r"[|&!:()]")
+CHARS_FILTER = re.compile(r"[}{`=,\\?/><\][#@%$^.;|+&!:)(]")
 PHRASE_CLEANUP = re.compile(r'"\s*(\w*)\s*"')
 AND_OP = "&"
 FOL_OP = "<->"
@@ -95,12 +95,15 @@ def _filter(query: str) -> str:
     """
     Filters out degenerate cases.
 
-    `:`, `!`, `|`, `(`, `)`: since we generate them in the tsquery.
+    `:`, '&', `!`, `|`, `(`, `)`: since we generate them in the tsquery.
+    `?`, `!`, `,`, `.`, `;`, `'`: punctuation
+    `/`, `\`, `#`, `$`, `%`, `+`, `=`: misc bad characters
+    `[`, `]`, `{`, `}`, `<`, `>`: brackets
     `""`, `" "`, etc: degenrate case
     `"word"`: redundant quoting
     `" word "`: redundant quoting with spaces
     """
-    return re.sub(PHRASE_CLEANUP, r"\1", re.sub(OPS_FILTER, r" ", query))
+    return re.sub(PHRASE_CLEANUP, r"\1", re.sub(CHARS_FILTER, r" ", query))
 
 
 def _tokenize(query: str) -> Iterator[str]:
