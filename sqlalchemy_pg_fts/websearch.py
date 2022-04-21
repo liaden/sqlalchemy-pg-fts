@@ -1,4 +1,5 @@
 import re
+import platform
 from typing import Iterator, List
 
 from sqlalchemy.ext.compiler import compiles
@@ -81,9 +82,6 @@ def ts_query_tokens(query: str) -> List[str]:
         elif token == "*":
             tokens[-2] = f"{tokens[-2]}:*"
         else:
-            if token[-1] == "*":
-                token = f"{token}:*"
-
             tokens.append(token)
             tokens.append(join_op)
 
@@ -114,10 +112,10 @@ def _tokenize(query: str) -> Iterator[str]:
        * `"or"`: signifies or
        * `word`: a word
     """
-    # split on word boundaries and spaces to separate troublesome cases:
-    # 1. `-"word into `-"` and `word` as well as
-    # 2. `word* "` into `word`, `*`, and `"`.
-    for part in re.split(r"\b|\s", query):
+    # python 3.7 does not split on empty regex match so the \b boundary doesn't
+    # break out all the pieces we need. the solution is to use two splits
+    for part in re.split(r"\s", query):
         part = part.strip()
-        if part != "":
-            yield (part)
+        for token in re.split(r"(\W+)", part):
+            if token != "":
+                yield token
