@@ -6,15 +6,33 @@ from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.sql.expression import FunctionElement
 
 
+CHARS_FILTER = re.compile(r"[}{`=,\\?/><\][#@%$^.;|+&!:)(]")
+PHRASE_CLEANUP = re.compile(r'"\s*(\w*)\s*"')
+AND_OP = "&"
+FOL_OP = "<->"
+NOT_OP = "!"
+OR_OP = "|"
+
+
 class websearch(FunctionElement):
     """
-     Compiles websearch query to tsquery text.
+    Compiles websearch query to tsquery text.
 
-     Usage:
-         `filter(SomeModel.column.matches(websearch("some words -filtered")))`
+    Example queries:
+       * 'super* dinosaur': will match superb/superior/super
+           and dinosaur within the document
+       * '"super dinosaur" carnivore': will match when the prhase
+           'super dinosaur' is present and carnivore is present
+       * '-"super dinosaur" carnivore': the phrase must not be
+           present while carnivore is
+       * 'carnivore or herbivore': either of these words must be present
 
-    Note: The above example does not cause the column to be converted to a tsvector
-    which does matter for query performance.
+    Usage:
+       * `filter(SomeModel.column.match(websearch("some words -filtered")))`
+
+           Note: This uses SqlAlchemy's match operator which uses '@@' and runs
+           to_tsquery underneath; however, it does not convert the column to a
+           tsvector which can be problematic.
     """
 
     name = "websearch"
@@ -24,14 +42,6 @@ class websearch(FunctionElement):
 def compile_websearch_postgres(element, compiler, **kw):
     websearch_query = list(element.clauses)[0].value
     return "'%s'" % websearch_to_tsquery(websearch_query)
-
-
-CHARS_FILTER = re.compile(r"[}{`=,\\?/><\][#@%$^.;|+&!:)(]")
-PHRASE_CLEANUP = re.compile(r'"\s*(\w*)\s*"')
-AND_OP = "&"
-FOL_OP = "<->"
-NOT_OP = "!"
-OR_OP = "|"
 
 
 class Websearch:
@@ -57,24 +67,19 @@ def ts_query_tokens(query: str) -> List[str]:
     query = _filter(query).lower()
 
     tokens = []
-    join_op = AND_OP
-    other_op = FOL_OP
-    paren = "("
-    other_paren = ")"
+    phrase_state = PhraseState()
 
     for token in _tokenize(query):
         if token == '-"':
             tokens.append("!(")
 
-            join_op, other_op = other_op, join_op
-            paren, other_paren = other_paren, paren
+            phrase_state.invert()
         elif token == '"':
             if len(tokens) > 0 and tokens[-1] == FOL_OP:
                 tokens.pop()
 
-            tokens.append(paren)
-            join_op, other_op = other_op, join_op
-            paren, other_paren = other_paren, paren
+            tokens.append(phrase_state.current_paren)
+            phrase_state.invert()
         elif token == "-":
             tokens.append(NOT_OP)
         elif token == "or":
@@ -83,7 +88,7 @@ def ts_query_tokens(query: str) -> List[str]:
             tokens[-2] = f"{tokens[-2]}:*"
         else:
             tokens.append(token)
-            tokens.append(join_op)
+            tokens.append(phrase_state.current_op)
 
     if len(tokens) > 0 and tokens[-1] == "&":
         tokens.pop()
@@ -99,7 +104,7 @@ def _filter(query: str) -> str:
     `?`, `!`, `,`, `.`, `;`, `'`: punctuation
     `/`, `\`, `#`, `$`, `%`, `+`, `=`: misc bad characters
     `[`, `]`, `{`, `}`, `<`, `>`: brackets
-    `""`, `" "`, etc: degenrate case
+    `""`, `" "`, etc: degenerate case
     `"word"`: redundant quoting
     `" word "`: redundant quoting with spaces
     """
@@ -122,3 +127,21 @@ def _tokenize(query: str) -> Iterator[str]:
         for token in re.split(r"(\W+)", part):
             if token != "":
                 yield token
+
+
+class PhraseState:
+    def __init__(self):
+        self.current_op = AND_OP
+        self.other_op = FOL_OP
+        self.current_paren = "("
+        self.next_paren = ")"
+
+    def invert(self) -> None:
+        self.current_op, self.other_op = self.other_op, self.current_op
+        self.current_paren, self.next_paren = self.next_paren, self.current_paren
+
+    def current_op(self) -> str:
+        return self.current_op
+
+    def current_paren(self) -> str:
+        return self.current_paren
