@@ -6,6 +6,7 @@ from sqlalchemy.types import String, UserDefinedType
 from sqlalchemy import func, null, type_coerce
 
 from sqlalchemy_pg_fts.websearch import Websearch
+from sqlalchemy_pg_fts.errors import ArgumentError
 
 
 class TSQuery(UserDefinedType):
@@ -69,8 +70,12 @@ class to_tsquery(FunctionElement):
 @compiles(to_tsquery, "postgresql")
 def compiles_to_tsquery(element, compiler, **kw) -> str:
     args = list(element.clauses)
+    arg_count = len(args)
 
-    if len(args) > 1:
+    if arg_count == 1:
+        query = args[0]
+        return "to_tsquery(%s)" % compiler.process(query, **kw)
+    elif arg_count == 2:
         language, query = args
 
         return "to_tsquery(%s, %s)" % (
@@ -78,5 +83,6 @@ def compiles_to_tsquery(element, compiler, **kw) -> str:
             compiler.process(query, **kw),
         )
     else:
-        query = args[0]
-        return "to_tsquery(%s)" % compiler.process(query, **kw)
+        raise ArgumentError(
+            f"Wrong number of arguments passed. Expected 1 or 2, got {arg_count}."
+        )

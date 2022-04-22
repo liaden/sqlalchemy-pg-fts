@@ -5,6 +5,8 @@ from sqlalchemy.sql.expression import FunctionElement
 from sqlalchemy.types import UserDefinedType
 from sqlalchemy import func, null
 
+from sqlalchemy_pg_fts.errors import ArgumentError
+
 
 class TSVector(UserDefinedType):
     """
@@ -64,8 +66,12 @@ class to_tsvector(FunctionElement):
 @compiles(to_tsvector, "postgresql")
 def compiles_to_tsvector(element, compiler, **kw) -> str:
     args = list(element.clauses)
+    arg_count = len(args)
 
-    if len(args) > 1:
+    if arg_count == 1:
+        query = args[0]
+        return "to_tsvector(%s)" % compiler.process(query, **kw)
+    elif arg_count == 2:
         language, query = args
 
         return "to_tsvector(%s, %s)" % (
@@ -73,5 +79,6 @@ def compiles_to_tsvector(element, compiler, **kw) -> str:
             compiler.process(query, **kw),
         )
     else:
-        query = args[0]
-        return "to_tsvector(%s)" % compiler.process(query, **kw)
+        raise ArgumentError(
+            f"Wrong number of arguments passed. Expected 1 or 2, got {arg_count}."
+        )

@@ -2,6 +2,7 @@ import pytest
 
 from sqlalchemy_pg_fts.websearch import websearch
 from sqlalchemy_pg_fts.tsvector import to_tsvector
+from sqlalchemy_pg_fts.errors import ArgumentError
 from tests.util import to_sql
 
 from sqlalchemy import select
@@ -21,9 +22,15 @@ def test_nolang_to_tsvector():
     assert to_sql(vector).startswith("SELECT to_tsvector('dinosaur & stomp')")
 
 
-def test_websearch_to_tsvector():
-    vector = select([to_tsvector("english", websearch("dinosaur stomp"))])
+def test_to_tsvector_no_args():
+    query = select([to_tsvector()])
 
-    assert to_sql(vector).startswith(
-        "SELECT to_tsvector('english', 'dinosaur & stomp')"
-    )
+    with pytest.raises(ArgumentError):
+        to_sql(query)
+
+
+def test_to_tsvector_too_many_args():
+    query = select([to_tsvector("a", "b", "c")])
+
+    with pytest.raises(ArgumentError):
+        to_sql(query)
